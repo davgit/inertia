@@ -165,6 +165,20 @@ export default function useForm<TForm extends Record<string, unknown>>(
     [data, setErrors],
   )
 
+  function clearErrors(...fields) {
+    setErrors((errors) => {
+      const newErrors = (Object.keys(errors) as Array<keyof TForm>).reduce(
+        (carry, field) => ({
+          ...carry,
+          ...(fields.length > 0 && !fields.includes(field) ? { [field]: errors[field] } : {}),
+        }),
+        {},
+      )
+      setHasErrors(Object.keys(newErrors).length > 0)
+      return newErrors
+    })
+  }
+
   return {
     data,
     setData(keyOrData: keyof TForm | Function | TForm, maybeValue?: TForm[keyof TForm]) {
@@ -213,17 +227,7 @@ export default function useForm<TForm extends Record<string, unknown>>(
               { ...data },
             ),
         )
-        setErrors((errors) => {
-          const newErrors = (Object.keys(errors) as Array<keyof TForm>).reduce(
-            (carry, field) => ({
-              ...carry,
-              ...(fields.length > 0 && !fields.includes(field) ? { [field]: errors[field] } : {}),
-            }),
-            {},
-          )
-          setHasErrors(Object.keys(newErrors).length > 0)
-          return newErrors
-        })
+        clearErrors(...fields)
       }
     },
     setError(fieldOrFields: keyof TForm | Record<keyof TForm, string>, maybeValue?: string) {
@@ -238,19 +242,7 @@ export default function useForm<TForm extends Record<string, unknown>>(
         return newErrors
       })
     },
-    clearErrors(...fields) {
-      setErrors((errors) => {
-        const newErrors = (Object.keys(errors) as Array<keyof TForm>).reduce(
-          (carry, field) => ({
-            ...carry,
-            ...(fields.length > 0 && !fields.includes(field) ? { [field]: errors[field] } : {}),
-          }),
-          {},
-        )
-        setHasErrors(Object.keys(newErrors).length > 0)
-        return newErrors
-      })
-    },
+    clearErrors,
     submit,
     get(url, options) {
       submit('get', url, options)
