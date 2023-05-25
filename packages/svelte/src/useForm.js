@@ -50,6 +50,7 @@ function useForm(...args) {
     reset(...fields) {
       if (fields.length === 0) {
         this.setStore(defaults)
+        this.clearErrors()
       } else {
         this.setStore(
           Object.keys(defaults)
@@ -59,6 +60,7 @@ function useForm(...args) {
               return carry
             }, {}),
         )
+        this.clearErrors(...fields)
       }
 
       return this
